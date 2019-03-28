@@ -1,8 +1,8 @@
-name: "my-website"
+name: "supp_data"
 navbar:
-  title: "My Website"
+  title: "Poster EGU2019"
   left:
-    - text: "Abstract"
+    - text: "My poster"
       href: index.html
     - text: "Plots and Data"
       href: about.html

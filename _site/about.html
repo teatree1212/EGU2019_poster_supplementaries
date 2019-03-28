@@ -274,12 +274,12 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">My Website</a>
+      <a class="navbar-brand" href="index.html">Poster EGU2019</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">Abstract</a>
+  <a href="index.html">My poster</a>
 </li>
 <li>
   <a href="about.html">Plots and Data</a>
@@ -301,7 +301,779 @@ $(document).ready(function () {
 </div>
 
 
-<p>EGU abstract</p>
+<pre class="r"><code>library(CaviaR)
+library(dplyr)
+
+create_Timestamp&lt;-function(start_date,no_years){
+  ## create timestamp for comparison with observations
+  start &lt;- as.POSIXct(start_date)
+  interval &lt;- 60
+  end &lt;- start + as.difftime(365*no_years, units=&quot;days&quot;)
+  datetime&lt;-seq(from=start, by=interval*60*24, to=end)
+
+  return(datetime)
+   }
+
+#Function to adjust the format of the model outputted cells to fit Excel Count tables in the standard of CaviaR.
+adjustFormat&lt;-function(cells_modelled,Year,Site){
+
+  cells_modelled&lt;-cells_modelled[which(cells_modelled$Year==Year),]
+
+  summary_cz_days&lt;-cells_modelled[which(cells_modelled$cell_type==1),]
+  collect_cz&lt;-(unique(summary_cz_days$day))
+  collect&lt;-collect_cz # a second version of cz isneeded for more clean cell collection
+
+  summary_cz&lt;- cells_modelled %&gt;%
+    group_by(Year,day,cell_type) %&gt;%
+    summarize(count = n()) %&gt;%
+    filter(cell_type ==&quot;1&quot;) %&gt;%
+    .$count
+
+  collect&lt;-data.frame(rbind(collect,summary_cz))
+
+  #########Enlarging cells
+
+  # If enlarging cells are not present, the dimension of the data.frame is 0 5
+  # if this is the case, then there are no enlarging cells to collect,
+  # only execute the below if enlarging cells are present:
+  if( dim(cells_modelled[which(cells_modelled$cell_type==2),])[1]!=0){
+
+  summary_ez_days&lt;-cells_modelled[which(cells_modelled$cell_type==2),]
+  collect_ez&lt;-unique(summary_ez_days$day)
+
+  summary_ez&lt;-cells_modelled %&gt;%
+    group_by(Year,day,cell_type) %&gt;%
+    summarize(count = n()) %&gt;%
+    filter(cell_type ==&quot;2&quot;) %&gt;%
+    .$count
+
+  collect_ez&lt;-data.frame(rbind(collect_ez,summary_ez))
+
+  collect &lt;- merge(t(collect),t(collect_ez),
+                         ,by.x=c(&#39;collect&#39;),by.y=(&#39;collect_ez&#39;),all=TRUE)
+  }else{ # No enlarging cells present
+    collect_ez&lt;-collect_cz
+    summary_ez&lt;-rep(0,length(collect_cz))
+    collect_ez&lt;-data.frame(rbind(collect_ez,summary_ez))
+
+    collect&lt;-merge(collect,t(collect_ez),
+                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_ez&#39;),all=TRUE)
+    warning(&#39;no wall enlarging cells seem to be present in the model output, adjust format will output EZ=0 on every sample day&#39;)
+
+  }
+  #########
+
+  # only execute the below if thickening cells are present:
+  if( dim(cells_modelled[which(cells_modelled$cell_type==3),])[1]!=0){
+  summary_wz_days&lt;-cells_modelled[which(cells_modelled$cell_type==3),]
+  collect_wz&lt;-(unique(summary_wz_days$day))
+
+  summary_wz&lt;- cells_modelled %&gt;%
+    group_by(Year,day,cell_type) %&gt;%
+    summarize(count = n()) %&gt;%
+    filter(cell_type ==&quot;3&quot;) %&gt;%
+    .$count
+
+  collect_wz&lt;-data.frame(rbind(collect_wz,summary_wz))
+
+
+  collect&lt;-merge(collect,t(collect_wz),
+                          ,by.x=c(&#39;collect&#39;),by.y=(&#39;collect_wz&#39;),all=TRUE)
+
+  } else{ # No thickening cells present
+    collect_wz&lt;-collect_cz
+    summary_wz&lt;-rep(0,length(collect_cz))
+    collect_wz&lt;-data.frame(rbind(collect_wz,summary_wz))
+
+    collect&lt;-merge(collect,t(collect_wz),
+                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_wz&#39;),all=TRUE)
+    warning(&#39;no wall thickening cells seem to be present in the model output, adjust format will output WZ=0 on every sample day&#39;)
+
+  }
+  #########
+
+  # only execute the below if mature cells are present:
+  if( dim(cells_modelled[which(cells_modelled$cell_type==4),])[1]!=0){
+
+  summary_mz_days&lt;-cells_modelled[which(cells_modelled$cell_type==4),]
+  collect_mz&lt;-(unique(summary_mz_days$day))
+
+  summary_mz&lt;- cells_modelled %&gt;%
+    group_by(Year,day,cell_type) %&gt;%
+    summarize(count = n()) %&gt;%
+    filter(cell_type ==&quot;4&quot;) %&gt;%
+    .$count
+
+  collect_mz&lt;-data.frame(rbind(collect_mz,summary_mz))
+
+
+  collect&lt;-merge(collect,t(collect_mz),
+                             by.x=c(&#39;collect&#39;),by.y=(&#39;collect_mz&#39;),all=TRUE)
+  }else{ # No mature cells present
+    collect_mz&lt;-collect_cz
+    summary_mz&lt;-rep(0,length(collect_cz))
+    collect_mz&lt;-data.frame(rbind(collect_mz,summary_mz))
+
+    collect&lt;-merge(collect,t(collect_mz),
+                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_mz&#39;),all=TRUE)
+    warning(&#39;no mature cells seem to be present in the model output, adjust format will output MZ=0 on every sammple day&#39;)
+
+  }
+
+  collect[is.na(collect)]&lt;-0
+
+
+  # Site name
+  Site&lt;-rep(as.factor(Site),length(summary_cz))
+
+  # Year  # currently only one year
+  Year&lt;-rep(unique(cells_modelled$Year),length(summary_cz))
+
+  # define Species as &quot;Model&quot;
+  Species_model&lt;-rep(as.factor(&quot;Model&quot;),length(summary_cz))
+
+  # define Tree number as 100, hoping that this is a number that tree numbers for observations never reach.
+  Tree_model&lt;-rep(as.factor(&quot;100&quot;),length(summary_cz))
+
+  # construct sample number
+  #Sample&lt;-rep(c(1,2,3),length(summary_cz)/3) # triplicates
+  Sample&lt;-1:length(summary_cz)
+  #Sample&lt;-seq(1,length(unique(cells_observed$DY))-1,1) # hack, somehow model does not output the last sample date..
+  #Sample&lt;-as.data.frame(Sample)
+  #Sample&lt;-as.integer(Sample[rep(1:nrow(Sample),each=3),])
+
+  # construct days of the year
+  DY&lt;-unique(cells_modelled$day)
+  #DY[length(DY)+1]&lt;-360
+  # DY&lt;-head(DY,-1)
+  # DY&lt;-as.data.frame(DY)
+  # DY&lt;-DY[rep(1:nrow(DY),each=3),] # triplicates
+
+  # construct repetition factor
+  #RF&lt;-as.factor(rep(c(1,2,3),length(summary_cz)/3)) # triplicates
+  RF&lt;-rep(as.factor(1),length(summary_cz))
+
+  # construct quality measure
+  # assume a quality value of 0.5 for all modelled values.
+  PR&lt;- rep(0.5,length(summary_cz))
+
+
+  cells_modelled&lt;-data.frame(Site=Site,
+                             Year=Year,
+                             Species=Species_model,
+                             Tree=Tree_model,
+                             Sample=Sample,
+                             DY=DY,
+                             RF=RF,
+                             CZ=collect$summary_cz,
+                             EZ=collect$summary_ez,
+                             WZ=collect$summary_wz,
+                             MZ=collect$summary_mz,
+                             PR= PR)
+
+
+  return(cells_modelled)
+
+}</code></pre>
+<div id="plot-fig-2" class="section level1">
+<h1>Plot Fig 2</h1>
+<pre class="r"><code># Graph layout inspired by Wilkinson et al 2015
+# load model input and select site Grandfontaine
+
+load(&#39;data/DH_model_ins.lst.RData&#39;)
+
+# crude run of DH-model
+
+DH_ins_weekly&lt;-DH_model_ins.lst$Inputs_GRA_3years
+y=3
+params&lt;-DH_model_ins.lst$Parameters$best
+params_DH&lt;-DH_model_ins.lst$Parameters# for table 2 below
+
+Tair&lt;-DH_ins_weekly$Tair
+Rw&lt;-DH_ins_weekly$SW
+Cpool&lt;-DH_ins_weekly$Cpool
+
+n=53
+D_n&lt;-rep(0,(n*y) )
+D_v&lt;-rep(0,(n*y) )
+D_m&lt;-rep(0,(n*y) )
+
+
+# hand over parameters
+Tmin = params[1] #  # °C Temperature below with cambial activity, volume and mass increment do not occur.
+Rwmin = params[2] # ( -) minimum relative soil moisture at which cambial activity, volume and mass increment do not occur.
+D_n_max = params[3]
+b = params[4]
+D_v_max = params[5]
+D_m_max = params[9]
+delta = params[6]
+chi = params[7]
+R_w_crit = params[8]
+
+
+#get relative soil moisture values as done in Wilkinson et al 2015
+Rw&lt;-1-1/(1+(Rw/R_w_crit)^chi)
+
+
+ds&lt;-c(1:(y*n))
+
+# run DH-model
+
+for(i in 1:(n*y)){
+
+  if(Tair[i] &gt;= Tmin &amp; Rw[i] &gt;= Rwmin) {
+
+    D_n[i]&lt;- D_n_max * (1-(exp( -b *(Tair[i]-Tmin) )))
+
+    D_v[i]&lt;-D_v_max * (Rw[i])
+
+    D_m[i]&lt;-D_m_max * (1- exp(-delta*Cpool[i]))
+
+  }
+}
+
+
+# prepare output and plotting
+
+Tair.df&lt;-data.frame(Tair=Tair,dates=ds,D_n=D_n)
+Rw.df&lt;-data.frame(Rw=Rw,dates=ds,D_v=D_v)
+Cpool.df&lt;-data.frame(Cpool=Cpool,dates=ds,D_m=D_m)
+
+Incr&lt;-D_n*D_v
+Dens&lt;-(D_m/D_v)*1000 # to convert dm^3 (Wilkinso 2015) # m^3 ( Cuny et al 2014)
+Dens.df&lt;-data.frame(Dens=Dens,dates=ds)
+
+
+
+# select last year only for plotting
+
+Tair.df&lt;-Tair.df[(2*53+1):(3*53),]
+Rw.df&lt;-Rw.df[(2*53+1):(3*53),]
+Cpool.df&lt;-Cpool.df[(2*53+1):(3*53),]
+ds&lt;-seq(as.Date(&quot;2009-01-01&quot;),as.Date(&quot;2010-01-01&quot;),7)
+Incr&lt;-Incr[(2*53+1):(3*53)]
+Dens&lt;-Dens[(2*53+1):(3*53)] # to convert dm^3 (Wilkinso 2015) # m^3 ( Cuny et al 2014)
+Dens.df&lt;-data.frame(Dens=Dens,dates=ds)
+
+
+  par(mfrow=c(4,1),mar=c(0,5,0,5),oma=c(4,0,1,0))
+
+  plot(Tair.df$dates,Tair.df$Tair,ylim=c(0,30),type=&quot;l&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;,ylab=&quot;&quot;)
+  mtext(&quot;Temperature (°C)&quot;,side=2,col=&quot;black&quot;,cex=1.2,line=3,outer=FALSE)
+  abline(h=25,col = &quot;lightgray&quot;, lty = 3)
+  abline(h=2.5,col = &quot;lightgray&quot;, lty = 3)
+  par(new = T)
+  plot(Tair.df$D_n,col=&quot;red&quot;,ylim=c(0.0,1.5), type =&quot;p&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;,yaxt=&#39;n&#39;,ylab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+  mtext(&quot;cells/week&quot;,side=4,col=&quot;red&quot;,cex=1.2,line=3.4,outer=FALSE)
+  axis(4,ylim=c(0.0,1.5),col=&quot;red&quot;,col.axis=&quot;red&quot;,las=1)
+
+
+  plot(Rw.df$dates,Rw.df$Rw,ylim=c(0,1.52), type=&quot;l&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;,ylab=&quot;&quot;)
+  mtext(&quot;Rw (-)&quot;,side=2,col=&quot;black&quot;,cex=1.2,line=3,outer=FALSE)
+  abline(h=0.5,col = &quot;lightgray&quot;, lty = 3)
+  par(new = T)
+  plot(Rw.df$date,Rw.df$D_v,col=&quot;red&quot;,ylim=c(0.0,0.0074),xaxt=&#39;n&#39;,xlab=&quot;&quot;,yaxt=&#39;n&#39;,ylab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+  mtext(expression(paste(Delta, &quot; volume&quot; )),side=4,col=&quot;red&quot;,cex=1.2,line=4,outer=FALSE)
+  mtext(&quot;(m3/week)&quot;,side=4,col=&quot;red&quot;,cex=1.2,line=5.4,outer=FALSE)
+  axis(4, ylim=c(0.0,0.0074), col=&quot;red&quot;,col.axis=&quot;red&quot;,las=1)
+
+
+  plot(Cpool.df$dates,Cpool.df$Cpool,ylim=c(0,4),type=&quot;l&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;,ylab=&quot;&quot;)
+  mtext(&quot;Cpool (Kg[C])&quot;,side=2,col=&quot;black&quot;,cex=1.2,line=3,outer=FALSE)
+  #lines(Ci, col=&quot;grey&quot;,lty=3)
+  par(new = T)
+  plot(Cpool.df$D_m,col=&quot;red&quot;,ylim=c(0.0,0.0052),xaxt=&#39;n&#39;,xlab=&quot;&quot;,yaxt=&#39;n&#39;,ylab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+  mtext(expression(paste(Delta,&quot;mass&quot;)), side=4 ,col=&quot;red&quot;,cex=1.2,line=4,outer=FALSE)
+  mtext(&quot;(kg/week)&quot;,side=4,col=&quot;red&quot;,cex=1.2,line=5.4,outer=FALSE)
+  axis(4, ylim=c(0.0,0.0052), col=&quot;red&quot;,col.axis=&quot;red&quot;,las=1)
+
+  par(mar=c(3,5,0,5))
+  plot(Dens.df$dates,Dens.df$Dens,ylim=c(0.0,1200),col=&quot;red&quot;,ylab=&quot;&quot;,yaxt=&#39;n&#39;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+  mtext(&quot;Density (kg/m3)&quot;,side=4,col=&quot;red&quot;,cex=1.2,line=4,outer=FALSE)
+  axis(4, ylim=c(0.0,1200), col=&quot;red&quot;,col.axis=&quot;red&quot;,las=1)
+  mtext(side=1,&quot;2009&quot;,line= 2.3)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/Fig2-1.png" alt="Example year of the model input dynamics and how the outputs ( cell numbers, volume and mass increase follow these dynamics and generate density." width="672" />
+<p class="caption">
+Example year of the model input dynamics and how the outputs ( cell numbers, volume and mass increase follow these dynamics and generate density.
+</p>
+</div>
+</div>
+<div id="fig-3" class="section level1">
+<h1>Fig 3</h1>
+<pre class="r"><code>  #Plot Fig X:
+
+
+  load(file=&#39;data/GRA_PISY_DENS.lst.RData&#39;)
+
+
+  # when other density measures are saved in the above format, this plot can easily visualise them.
+  index&lt;-c(2007,2008,2009)
+  par(mfrow=c(4,1),mar=c(0,4.5,0,40),omar=c(0,2.7,4,0))</code></pre>
+<pre><code>## Warning in par(mfrow = c(4, 1), mar = c(0, 4.5, 0, 40), omar = c(0, 2.7, :
+## &quot;omar&quot; is not a graphical parameter</code></pre>
+<pre class="r"><code>  for ( i in 1:3){
+
+    subs&lt;-GRA_PISY_DENS.lst[[i]]
+    Obs_mean&lt;-subs[(&quot;Obs_mean&quot;),]
+    Obs_sd&lt;-subs[(&quot;Obs_sd&quot;),]
+    Model&lt;-subs[(&quot;Model&quot;),]
+    plot(Model, type =&quot;l&quot;,ylim=c(0,1300),xaxt=&#39;n&#39;,xlab=&quot;&quot;, col=&quot;red&quot;,ylab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+    xx&lt;-c(1:20,20:1)
+    # prepare for plotting sd error around mean + plot
+    sd_above&lt;-Obs_mean+Obs_sd
+    sd_below&lt;-Obs_mean-Obs_sd
+    yy&lt;-c(rep(0,length(sd_above)),rev(sd_above))
+    polygon(xx, yy, col=&#39;lightgrey&#39;,border=NA)
+    yy&lt;-c(rep(0,length(sd_below)),rev(sd_below))
+    polygon(xx, yy, col=&#39;white&#39;,border=NA)
+
+    # replot model on top
+    lines(Model, type =&quot;l&quot;,col=&quot;red&quot;,xaxs=&quot;i&quot;,lwd=2.4,yaxs=&quot;i&quot;)
+    # plot mean
+    lines(Obs_mean, col= &quot;black&quot;,xaxt=&#39;n&#39;,lwd=2.4,xlab=&quot;&quot;,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;)
+    mtext(side=3,line=-1.5,index[i],adj=0,cex=1.2)
+
+  }
+  axis(1, at=seq(0,20,5), labels=c(0.0, 0.25, 0.5, 0.75, 1))
+
+  mtext(&quot;rel. position in tree ring&quot;,side=1,line=3,cex=1.8)
+  plot(1, type=&quot;n&quot;, axes=F, xlab=&quot;&quot;, ylab=&quot;&quot;)
+  mtext (&quot;Density (Kg/m3)&quot;, side=2, cex=1.8, line=2.4,adj =0, at=2.2)
+  legend(&quot;center&quot;,legend= c(&quot;DH-model&quot;, &quot;Observed mean density&quot;), cex=1,col =c(&quot;red&quot;,&quot;black&quot;) ,fill=c(&quot;red&quot;,&quot;black&quot;),horiz=TRUE)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/Fig3%20-1.png" alt="Modelled and observed density profiles within tree rings for years 2007 to 2009." width="672" />
+<p class="caption">
+Modelled and observed density profiles within tree rings for years 2007 to 2009.
+</p>
+</div>
+</div>
+<div id="fig-4" class="section level1">
+<h1>Fig 4</h1>
+<pre class="r"><code>  load(file=&#39;data/GRA_PISY_TRW_MXD_NR.lst.RData&#39;)
+
+  MXD_table     &lt;- GRA_PSY_TRW_MXD_NR.lst$MXD_table
+
+  par(mfrow=c(4,1),mar=c(0,4.5,0,10),oma=c(0,2.7,4,0))
+
+  maxD&lt;-max(MXD_table$Model+MXD_table$obs_stdev,MXD_table$obs+MXD_table$obs_stdev)+100
+  minD&lt;-min(MXD_table$Model-MXD_table$obs_stdev-100)
+  plot(MXD_table$years,MXD_table$Model, col=&quot;red&quot;,lwd=2.3,type=&quot;o&quot;, ylab=&quot;&quot;,ylim=c(minD,maxD))
+  lines(MXD_table$years,MXD_table$obs, col=&quot;black&quot;,lwd=2.3, type =&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;, ylab=&quot;&quot;)
+  segments(MXD_table$years,MXD_table$obs-MXD_table$obs_stdev,MXD_table$years,MXD_table$obs+MXD_table$obs_stdev)
+  mtext(side=2, &quot;Maximum density \n (kg/m3)&quot;,cex=1.2,line=3)
+  mtext(side=1, &quot;Years&quot;,line=3,cex=1.4)
+  mtext(side=3,line=-2.2,adj=0)</code></pre>
+</div>
+<div id="fig-5" class="section level1">
+<h1>Fig 5</h1>
+<pre class="r"><code>  # imagine 20 cells
+  j&lt;- seq(0:20)
+  # code up the cambial zone image
+
+  #exponential function of Vmin ( Camb50.for, Vaganov et al 2011)
+  b5=1
+  b8=0.55
+  b9=0.045#0.035
+  #linear function (Camb50, parametersin CMB50)
+  b7=0.35 # corresponds to table 7.2 b1, value used there : 0.42
+  b6=0.12 # corresponds to table 7.2 b2, value used there : 0.25
+
+  V_cr =0.04
+
+  zone_Vmin_Camb50&lt;-b9*exp(b8*j*b5)
+  zone_V0_Camb50&lt;-b7+ b6*j
+
+
+  par(mfrow=c(1,2),mar=c(8,4,8,0.5),oma=c(3,3,2,0))
+
+  plot(zone_Vmin_Camb50,type=&quot;l&quot;,ylim=c(0,3),xlim=c(1,20),col=&quot;orange&quot;,lwd=3.2,xaxs=&quot;i&quot;,yaxs=&quot;i&quot;,xlab=&quot;&quot;,ylab=&quot;&quot;)
+  lines(zone_V0_Camb50,lwd=3.2)
+  abline(h=V_cr,col=&quot;red&quot;,lwd=3.2)
+  #mtext(side=3,line=0.5,&quot;Position dependent absolute growth rate&quot;,outer=TRUE,cex=1.3)
+  mtext(side=2,line=3, &quot;Absolute growth rate \n(µm/day)&quot;,cex=2)
+  mtext( &quot;cell position&quot;, side=1 ,line=3.2,cex=2)
+  mtext(side=3,line=-1,&quot;B&quot;,adj=0,cex=1.2)
+  plot(1, type=&quot;n&quot;, axes=F, xlab=&quot;&quot;, ylab=&quot;&quot;)
+  legend(&quot;left&quot;,legend=c(&quot;V_min&quot;,&quot;V_0&quot;,&quot;V_cr&quot;),col=c(&quot;orange&quot;,&quot;black&quot;,&quot;red&quot;),fill=c(&quot;orange&quot;,&quot;black&quot;,&quot;red&quot;))</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/Fig5%20-1.png" alt=" VS model: Cambial blocks’ framework for  position-dependent evaluation of G into absolute growth rate" width="672" />
+<p class="caption">
+VS model: Cambial blocks’ framework for position-dependent evaluation of G into absolute growth rate
+</p>
+</div>
+</div>
+<div id="fig-6" class="section level1">
+<h1>Fig 6:</h1>
+<pre class="r"><code> # Graph layout inspired by Evans et al 2006
+
+  load(file=&#39;data/VS_model_output.RData&#39;)
+
+  # retrieve Model output
+  loc_Walscheid_360m     &lt;- VS_model_output$loc_Walscheid_360m
+  loc_Abreschviller_430m &lt;- VS_model_output$loc_Abreschviller_430m
+  loc_Grandfontaine_650m &lt;- VS_model_output$loc_Grandfontaine_650m
+
+
+  # cambial_growth_rate used to hold  g_rate_t
+  # enlargement_rate used to hold g_rate_w
+  # thickening_rate used to hold g_rate_e
+
+  # only plot year 2009: [365*2+1:365*3]
+  nyears=1
+  start_date&lt;-&quot;2009-01-01&quot;
+
+
+  par(mfrow=c(5,1),mar=c(0,5,0,5),oma=c(4,0.5,1,0))
+  sites&lt;-c(&#39;loc_Walscheid_360m&#39;,&#39;loc_Abreschviller_430m&#39;,&#39;loc_Grandfontaine_650m&#39;)
+
+  g_rate_t_W &lt;- get(sites[1])$growth_rates$cambial_growth_rate[(365+366+1):(365*2+366)]
+  g_rate_t_A &lt;- get(sites[2])$growth_rates$cambial_growth_rate[(365+366+1):(365*2+366)]
+  g_rate_t_G &lt;- get(sites[3])$growth_rates$cambial_growth_rate[(365+366+1):(365*2+366)]
+
+  plot(g_rate_t_W,type=&quot;l&quot;,xlab=&quot;&quot;,xaxt=&quot;n&quot;,ylim=c(0,1.1),lty=1, ylab=&quot;g_rate_t&quot;,cex.lab=1.5)
+  lines(g_rate_t_A, col=&quot;green&quot;,lty=2)
+  lines(g_rate_t_G, col=&quot;blue&quot;,lty=3)
+
+  g_rate_w_W &lt;- get(sites[1])$growth_rates$enlargement_rate[(365+366+1):(365*2+366)]
+  g_rate_w_A &lt;- get(sites[2])$growth_rates$enlargement_rate[(365+366+1):(365*2+366)]
+  g_rate_w_G &lt;- get(sites[3])$growth_rates$enlargement_rate[(365+366+1):(365*2+366)]
+
+  plot(g_rate_w_W,type=&quot;l&quot;,xlab=&quot;&quot;,xaxt=&quot;n&quot;,ylim=c(0,1.1),lty=1, ylab=&quot;g_rate_w&quot;,cex.lab=1.5)
+  lines(g_rate_w_A, col=&quot;green&quot;,lty=2)
+  lines(g_rate_w_G, col=&quot;blue&quot;,lty=3)
+
+  g_rate_e_W &lt;- get(sites[1])$growth_rates$thickening_rate[(365+366+1):(365*2+366)]
+  g_rate_e_A &lt;- get(sites[2])$growth_rates$thickening_rate[(365+366+1):(365*2+366)]
+  g_rate_e_G &lt;- get(sites[3])$growth_rates$thickening_rate[(365+366+1):(365*2+366)]
+
+  plot(g_rate_e_W,type=&quot;l&quot;,xlab=&quot;&quot;,xaxt=&quot;n&quot;,ylim=c(0,1.1),lty=1, ylab=&quot;g_rate_e&quot;,cex.lab=1.5)
+  lines(g_rate_e_A, col=&quot;green&quot;,lty=2)
+  lines(g_rate_e_G, col=&quot;blue&quot;,lty=3)
+
+  #to obtain Grate for all 3 sites
+  sites_L&lt;-c(&#39;W&#39;,&#39;A&#39;,&#39;Wcells&#39;,&#39;Acells&#39;)
+
+  # prepare the large data frame (W and A have on emore year of met data)
+  nyears&lt;-round(length(g_rate_t_W)/365, digits=0)
+  Gplot&lt;-data.frame(matrix(0,ncol=5,nrow=length(g_rate_t_W[(365+366):(365*2+366)])))
+  colnames(Gplot)&lt;-c(&#39;Time&#39;,sites_L)
+  G&lt;-rep(0,365*nyears)
+
+  # set timestamp to enable better plotting
+  #start_date&lt;-&quot;2007-01-01&quot;
+  Gplot$Time&lt;-create_Timestamp(start_date,nyears)
+  Gplot$W &lt;- get(sites[1])$growth_rates$G_env[(365+366):(365*2+366)]
+  Gplot$A &lt;- get(sites[2])$growth_rates$G_env[(365+366):(365*2+366)]
+  Gplot$Wcells&lt;-get(sites[1])$growth_rates$`cumulative Cell#`[(365+366):(365*2+366)]
+  Gplot$Acells&lt;-get(sites[2])$growth_rates$`cumulative Cell#`[(365+366):(365*2+366)]
+
+  # add the shorter data frame
+  Gshort&lt;-data.frame(matrix(0,ncol=2,nrow=length(get(sites[3])$growth_rates$G_env[(365+366):(365*2+366)])))
+  names(Gshort)&lt;-c(&quot;G&quot;,&quot;Gcells&quot;)
+  Gshort$Time&lt;- create_Timestamp(start_date,nyears)
+  Gshort$G&lt;-get(sites[3])$growth_rates$G_env[(365+366):(365*2+366)]
+  Gshort$Gcells&lt;-get(sites[3])$growth_rates$`cumulative Cell#`[(365+366):(365*2+366)]
+  Gplot&lt;-merge(Gplot, Gshort, by.x = &quot;Time&quot;, all=TRUE )
+
+  # remove cells carried over from last year
+  Gplot$Wcells[1]&lt;-0
+  Gplot$Acells[1]&lt;-0
+  Gplot$Gcells[1]&lt;-0
+
+  # plot
+  plot(Gplot$Time, Gplot$W, type = &quot;l&quot;, ylab = &quot;G&quot;, ylim=c(0,1.1), lty=1, xlab=&quot;&quot;, xaxt=&quot;n&quot;,cex.lab=1.3)
+  lines(Gplot$Time, Gplot$A, col=&quot;green&quot;, type = &quot;l&quot;, ylab = &quot;G&quot;, ylim=c(0,1.1), lty=2)
+  lines(Gplot$Time, Gplot$G, col=&quot;blue&quot;, type = &quot;l&quot;, ylab = &quot;G&quot;, ylim=c(0,1.1), lty=3)
+
+  plot(Gplot$Time, Gplot$Wcells, type = &quot;l&quot;,ylab=&quot;N&quot;,cex.lab=1.5)
+  lines(Gplot$Time, Gplot$Acells, col = &quot;green&quot;)
+  lines(Gplot$Time, Gplot$Gcells, col = &quot;blue&quot;)
+  mtext(&quot;2009&quot;,cex=1.2,line=-14.5)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/fig6-1.png" alt="relative growth rates (t,w,e) , integrated growth rate G and cell numbers (N) throughout year 2009 at WAL(black), ABR (green) &amp; GRA(blue)" width="672" />
+<p class="caption">
+relative growth rates (t,w,e) , integrated growth rate G and cell numbers (N) throughout year 2009 at WAL(black), ABR (green) &amp; GRA(blue)
+</p>
+</div>
+</div>
+<div id="fig-7" class="section level1">
+<h1>Fig 7:</h1>
+<pre class="r"><code>  load(file=&#39;data/GRA2009_Cell_Count.RData&#39;)
+
+  # now, adjust the format to make it comparable for CaviaR.
+  cells_modelled&lt;-adjustFormat(loc_Grandfontaine_650m$microcore_collection,2009,&#39;GRA&#39;)</code></pre>
+<pre><code>## Warning in adjustFormat(loc_Grandfontaine_650m$microcore_collection,
+## 2009, : no wall thickening cells seem to be present in the model output,
+## adjust format will output WZ=0 on every sample day</code></pre>
+<pre><code>## Warning in adjustFormat(loc_Grandfontaine_650m$microcore_collection,
+## 2009, : no mature cells seem to be present in the model output, adjust
+## format will output MZ=0 on every sammple day</code></pre>
+<pre class="r"><code>  # hack: move what is in EZ to MZ to better visualise that no EZ or WZ are modelled by the VS-model.
+  names(cells_modelled)&lt;-c(&quot;Site&quot;, &quot;Year&quot;, &quot;Species&quot;, &quot;Tree&quot;, &quot;Sample&quot;,&quot;DY&quot;, &quot;RF&quot;, &quot;CZ&quot;, &quot;MZ&quot;,  &quot;WZ&quot;, &quot;EZ&quot;, &quot;PR&quot; )
+
+  # remove sampling day 365, stretches the plot too much:
+  cells_modelled&lt;-cells_modelled[cells_modelled$DY!=365,]
+
+
+  plotWoodFormationDynamics(GRA2009_Cell_Count,level=&quot;MvM&quot;)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/fig7-1.png" alt="Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR." width="672" />
+<p class="caption">
+Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR.
+</p>
+</div>
+<div class="figure">
+<img src="about_files/figure-html/fig7-2.png" alt="Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR." width="672" />
+<p class="caption">
+Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR.
+</p>
+</div>
+<div class="figure">
+<img src="about_files/figure-html/fig7-3.png" alt="Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR." width="672" />
+<p class="caption">
+Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR.
+</p>
+</div>
+<pre><code>##     Site Year          Species Sample  DY Zone   NC        LB        UB
+## 11   GRA 2009       Abies alba     11 160   WZ 11.2  4.316718  9.683282
+## 12   GRA 2009       Abies alba     12 167   WZ 13.2  8.500000 11.500000
+## 13   GRA 2009       Abies alba     13 174   WZ 12.8  5.500000  8.500000
+## 14   GRA 2009       Abies alba     14 181   WZ 12.2  7.500000 10.500000
+## 15   GRA 2009       Abies alba     15 188   WZ 14.2  9.987539 14.012461
+## 30   GRA 2009      Picea abies     30 293   WZ  1.6  0.000000  1.500000
+## 301  GRA 2009 Pinus sylvestris     30 293   MZ 22.2 22.500000 25.500000</code></pre>
+<pre class="r"><code>  plotWoodFormationDynamics(cells_modelled)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/fig7-4.png" alt="Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR." width="672" />
+<p class="caption">
+Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2009 (left) and (where cell type available) the corresponding VS-model output (right) plotted using CaviaR.
+</p>
+</div>
+<pre><code>##  [1] Site   Year   Tree   Sample DY     RF     Zone   NC     LB     UB    
+## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+<div id="fig-8" class="section level1">
+<h1>Fig 8:</h1>
+<pre class="r"><code>  load(file=&#39;data/GRA_PISY_TRW_MXD_NR.lst.RData&#39;)
+  #unlist(GRA_PSY_TRW_MXD_NR.lst[[1]]) doesn&#39;t work?!
+
+#mean cell size across all years for PISY at GRA
+D_MEAN= 26.28087
+
+  TRW_table     &lt;- GRA_PSY_TRW_MXD_NR.lst$TRW_table
+  MXD_table     &lt;- GRA_PSY_TRW_MXD_NR.lst$MXD_table
+  cell_nr_table &lt;- GRA_PSY_TRW_MXD_NR.lst$cell_nr_table
+
+  cell_nr_table$VS_model &lt;- as.numeric(loc_Grandfontaine_650m$cell_numbers)
+  TRW_table$VS_model &lt;- as.numeric(D_MEAN*loc_Grandfontaine_650m$cell_numbers/1000) # change units from µm to mm
+
+  # plot
+  par(mfrow=c(4,1),mar=c(0,4.5,0,40),oma=c(0,2.7,4,0))
+
+  maxN&lt;-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
+  minN&lt;-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
+
+  plot(cell_nr_table$years,cell_nr_table$tot_cells, lwd=2.3,col=&quot;red&quot;,type=&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;, ylab=&quot;&quot;,ylim=c(minN,maxN))
+  lines(cell_nr_table$years,cell_nr_table$Mean, lwd=2.3,col=&quot;black&quot;, type =&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
+  segments(cell_nr_table$years,cell_nr_table$Mean-cell_nr_table$Sd,cell_nr_table$years,cell_nr_table$Mean+cell_nr_table$Sd)
+  lines(cell_nr_table$years,cell_nr_table$VS_model, lwd=2.3,col=&quot;grey&quot;, type =&quot;b&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
+  mtext(side=2, &quot;Number of cells&quot;,cex=1.2,line=3)
+  mtext(side=3,&quot;A&quot;,line=-2.2,adj=0)
+
+  maxRW&lt;-max(TRW_table$TRW_model,TRW_table$TRW_obs)+max(TRW_table$TRW_obs_stdev)+0.2
+  minRW&lt;-min(TRW_table$TRW_model,TRW_table$TRW_obs)-max(TRW_table$TRW_obs_stdev)-0.2
+  plot(TRW_table$years,TRW_table$TRW_model,type=&quot;o&quot;,lwd=2.3,cex.lab=5, ylab=&quot;&quot;,col=&quot;red&quot;,ylim=c(minRW,maxRW),xlab=&quot;&quot;)
+  lines(TRW_table$years,TRW_table$TRW_obs,lwd=2.3,type=&quot;o&quot;,col=&quot;black&quot;)
+  segments(TRW_table$years,TRW_table$TRW_obs-TRW_table$TRW_obs_stdev,TRW_table$years,TRW_table$TRW_obs+TRW_table$TRW_obs_stdev)
+  lines(TRW_table$years,TRW_table$VS_model, lwd=2.3,col=&quot;grey&quot;, type =&quot;b&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
+  mtext(side=2, &quot;Ring width (mm)&quot;,cex=1.2,line=3)
+  mtext(side=3,&quot;B&quot;,line=-2.2,adj=0)
+  mtext(side=1, &quot;Years&quot;,line=3,cex=1.4)
+  plot(1, type=&quot;n&quot;, axes=F, xlab=&quot;&quot;, ylab=&quot;&quot;)
+  legend(&quot;center&quot;, legend=c(&quot;DH-model&quot;,&quot;VS-model&quot;,&quot;observations&quot;), cex=1,col=c(&quot;red&quot;,&quot;grey&quot;,&quot;black&quot;),fill=c(&quot;red&quot;,&quot;grey&quot;,&quot;black&quot;),horiz=TRUE)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/fig8%20-1.png" alt="Modelled and observed number of cells and ring width for years 2007 to 2009." width="672" />
+<p class="caption">
+Modelled and observed number of cells and ring width for years 2007 to 2009.
+</p>
+</div>
+<p># Table 2</p>
+<table style="width:53%;">
+<colgroup>
+<col width="12%" />
+<col width="9%" />
+<col width="19%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Unit</th>
+<th>Description</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(T_{air}\)</span></td>
+<td>°C</td>
+<td>Weekly mean air temperature</td>
+<td>input</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta_{n,i}\)</span></td>
+<td>cells</td>
+<td>Number of cells produced per week (i)</td>
+<td>output</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(Tmin\)</span></td>
+<td>°C</td>
+<td>Minimum air temperature</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta_{n,max}\)</span></td>
+<td>cells/week</td>
+<td>Maximum number of cells produced per week</td>
+<td>0.92</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta\)</span></td>
+<td>/°C</td>
+<td>Sensitivity of cell division to temperature</td>
+<td>0.2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(R_{w,i}\)</span></td>
+<td>vsoil/ vmax soil</td>
+<td>Relative water availability</td>
+<td>input</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\Delta_v\)</span></td>
+<td><span class="math inline">\(m^3\)</span></td>
+<td>Tree volume gain within a week</td>
+<td>output</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta_{v,max}\)</span></td>
+<td><span class="math inline">\(m^3/week\)</span></td>
+<td>Maximum tree volume gain per week</td>
+<td>0.005</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(Cpool_{i}\)</span></td>
+<td>kg[C]</td>
+<td>NSC pool size per week</td>
+<td>input</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta_{m,i}\)</span></td>
+<td>kgDW</td>
+<td>Tree mass increment within a week</td>
+<td>output</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\Delta_{m,max}\)</span></td>
+<td>kgDW/week</td>
+<td>Maximum tree mass increment per week</td>
+<td>0.64</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\delta\)</span></td>
+<td>/kgDW</td>
+<td>Sensitivity of cell wall thickening to Carbon pool</td>
+<td>0.002</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(Dens_i\)</span></td>
+<td>kg/m^{3}</td>
+<td>Density produced during week <em>i</em></td>
+<td>output</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(Incr\)</span></td>
+<td>mm</td>
+<td>Ring width increment during week <em>i</em></td>
+<td>output</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(g\_rate\_e\)</span></td>
+<td>(-)</td>
+<td>relative growth rate modifier based on daylength</td>
+<td>variable</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(g\_rate\_t\)</span></td>
+<td>(-)</td>
+<td>relative growth-rate modifier based on temperature</td>
+<td>variable</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(g\_rate\_w\)</span></td>
+<td>(-)</td>
+<td>relative growth-rate modifier based on soil moisture</td>
+<td>variable</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(G\)</span></td>
+<td>(-)</td>
+<td>relatige integrated growth rate</td>
+<td>variable</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(D_{mean}\)</span></td>
+<td>µm</td>
+<td>Observed mean cell diameter across study years</td>
+<td>26.28087</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(N\)</span></td>
+<td>cells</td>
+<td>Number of cells</td>
+<td>output</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(TRW\)</span></td>
+<td>mm</td>
+<td>Treering width</td>
+<td>output</td>
+</tr>
+<tr class="even">
+<td>b9</td>
+<td>-</td>
+<td>exponential function of Vmin ( Vaganov et al 2011)</td>
+<td>0.045</td>
+</tr>
+<tr class="odd">
+<td>b8</td>
+<td>-</td>
+<td>exponential function of Vmin ( Vaganov et al 2011)</td>
+<td>0.55</td>
+</tr>
+<tr class="even">
+<td>b5</td>
+<td>-</td>
+<td>exponential function of Vmin ( Vaganov et al 2011)</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>b7</td>
+<td>-</td>
+<td>linear function (Camb50, parametersin CMB50)</td>
+<td>0.35</td>
+</tr>
+<tr class="even">
+<td>b6</td>
+<td>-</td>
+<td>linear function (Camb50, parametersin CMB50)</td>
+<td>0.12</td>
+</tr>
+</tbody>
+</table>
+</div>
 
 
 

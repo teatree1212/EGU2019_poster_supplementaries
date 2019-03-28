@@ -1,5 +1,17 @@
 ---
-title: "Poster"
+title: "Data and Code for Poster"
+subtitle: "Improving understanding of wood formation: a comparison of two models"
 ---
 
-Hello, World!
+
+
+This Website prvides the data for the graphs that were presented in the Poster at the EGU General Assembly 2019,
+session BG2.12 - Constraining present and future global vegetation dynamics and carbon stocks.
+
+The poster title is _Improving understanding of wood formation: a comparison of two models_
+
+The Abstract can be found here: [https://meetingorganizer.copernicus.org/EGU2019/EGU2019-17876.pdf]
+
+The poster can be viewed again here:
+ 
+![Presented at EGU 2019, session](Poster_V2.png)
