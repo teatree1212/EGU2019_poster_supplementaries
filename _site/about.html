@@ -11,7 +11,7 @@
 
 
 
-<title>Abstract</title>
+<title>Data and Code</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -296,13 +296,12 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Abstract</h1>
+<h1 class="title toc-ignore">Data and Code</h1>
 
 </div>
 
 
-<pre class="r"><code>library(CaviaR)
-library(dplyr)</code></pre>
+<p>Below the Code and its resulting figures used in the Poster can be found. The data is availale from <a href="https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data" class="uri">https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data</a></p>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>## The following objects are masked from &#39;package:stats&#39;:
@@ -311,177 +310,6 @@ library(dplyr)</code></pre>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>create_Timestamp&lt;-function(start_date,no_years){
-  ## create timestamp for comparison with observations
-  start &lt;- as.POSIXct(start_date)
-  interval &lt;- 60
-  end &lt;- start + as.difftime(365*no_years, units=&quot;days&quot;)
-  datetime&lt;-seq(from=start, by=interval*60*24, to=end)
-
-  return(datetime)
-   }
-
-#Function to adjust the format of the model outputted cells to fit Excel Count tables in the standard of CaviaR.
-adjustFormat&lt;-function(cells_modelled,Year,Site){
-
-  cells_modelled&lt;-cells_modelled[which(cells_modelled$Year==Year),]
-
-  summary_cz_days&lt;-cells_modelled[which(cells_modelled$cell_type==1),]
-  collect_cz&lt;-(unique(summary_cz_days$day))
-  collect&lt;-collect_cz # a second version of cz isneeded for more clean cell collection
-
-  summary_cz&lt;- cells_modelled %&gt;%
-    group_by(Year,day,cell_type) %&gt;%
-    summarize(count = n()) %&gt;%
-    filter(cell_type ==&quot;1&quot;) %&gt;%
-    .$count
-
-  collect&lt;-data.frame(rbind(collect,summary_cz))
-
-  #########Enlarging cells
-
-  # If enlarging cells are not present, the dimension of the data.frame is 0 5
-  # if this is the case, then there are no enlarging cells to collect,
-  # only execute the below if enlarging cells are present:
-  if( dim(cells_modelled[which(cells_modelled$cell_type==2),])[1]!=0){
-
-  summary_ez_days&lt;-cells_modelled[which(cells_modelled$cell_type==2),]
-  collect_ez&lt;-unique(summary_ez_days$day)
-
-  summary_ez&lt;-cells_modelled %&gt;%
-    group_by(Year,day,cell_type) %&gt;%
-    summarize(count = n()) %&gt;%
-    filter(cell_type ==&quot;2&quot;) %&gt;%
-    .$count
-
-  collect_ez&lt;-data.frame(rbind(collect_ez,summary_ez))
-
-  collect &lt;- merge(t(collect),t(collect_ez),
-                         ,by.x=c(&#39;collect&#39;),by.y=(&#39;collect_ez&#39;),all=TRUE)
-  }else{ # No enlarging cells present
-    collect_ez&lt;-collect_cz
-    summary_ez&lt;-rep(0,length(collect_cz))
-    collect_ez&lt;-data.frame(rbind(collect_ez,summary_ez))
-
-    collect&lt;-merge(collect,t(collect_ez),
-                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_ez&#39;),all=TRUE)
-    warning(&#39;no wall enlarging cells seem to be present in the model output, adjust format will output EZ=0 on every sample day&#39;)
-
-  }
-  #########
-
-  # only execute the below if thickening cells are present:
-  if( dim(cells_modelled[which(cells_modelled$cell_type==3),])[1]!=0){
-  summary_wz_days&lt;-cells_modelled[which(cells_modelled$cell_type==3),]
-  collect_wz&lt;-(unique(summary_wz_days$day))
-
-  summary_wz&lt;- cells_modelled %&gt;%
-    group_by(Year,day,cell_type) %&gt;%
-    summarize(count = n()) %&gt;%
-    filter(cell_type ==&quot;3&quot;) %&gt;%
-    .$count
-
-  collect_wz&lt;-data.frame(rbind(collect_wz,summary_wz))
-
-
-  collect&lt;-merge(collect,t(collect_wz),
-                          ,by.x=c(&#39;collect&#39;),by.y=(&#39;collect_wz&#39;),all=TRUE)
-
-  } else{ # No thickening cells present
-    collect_wz&lt;-collect_cz
-    summary_wz&lt;-rep(0,length(collect_cz))
-    collect_wz&lt;-data.frame(rbind(collect_wz,summary_wz))
-
-    collect&lt;-merge(collect,t(collect_wz),
-                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_wz&#39;),all=TRUE)
-    warning(&#39;no wall thickening cells seem to be present in the model output, adjust format will output WZ=0 on every sample day&#39;)
-
-  }
-  #########
-
-  # only execute the below if mature cells are present:
-  if( dim(cells_modelled[which(cells_modelled$cell_type==4),])[1]!=0){
-
-  summary_mz_days&lt;-cells_modelled[which(cells_modelled$cell_type==4),]
-  collect_mz&lt;-(unique(summary_mz_days$day))
-
-  summary_mz&lt;- cells_modelled %&gt;%
-    group_by(Year,day,cell_type) %&gt;%
-    summarize(count = n()) %&gt;%
-    filter(cell_type ==&quot;4&quot;) %&gt;%
-    .$count
-
-  collect_mz&lt;-data.frame(rbind(collect_mz,summary_mz))
-
-
-  collect&lt;-merge(collect,t(collect_mz),
-                             by.x=c(&#39;collect&#39;),by.y=(&#39;collect_mz&#39;),all=TRUE)
-  }else{ # No mature cells present
-    collect_mz&lt;-collect_cz
-    summary_mz&lt;-rep(0,length(collect_cz))
-    collect_mz&lt;-data.frame(rbind(collect_mz,summary_mz))
-
-    collect&lt;-merge(collect,t(collect_mz),
-                   by.x=c(&#39;collect&#39;),by.y=(&#39;collect_mz&#39;),all=TRUE)
-    warning(&#39;no mature cells seem to be present in the model output, adjust format will output MZ=0 on every sammple day&#39;)
-
-  }
-
-  collect[is.na(collect)]&lt;-0
-
-
-  # Site name
-  Site&lt;-rep(as.factor(Site),length(summary_cz))
-
-  # Year  # currently only one year
-  Year&lt;-rep(unique(cells_modelled$Year),length(summary_cz))
-
-  # define Species as &quot;Model&quot;
-  Species_model&lt;-rep(as.factor(&quot;Model&quot;),length(summary_cz))
-
-  # define Tree number as 100, hoping that this is a number that tree numbers for observations never reach.
-  Tree_model&lt;-rep(as.factor(&quot;100&quot;),length(summary_cz))
-
-  # construct sample number
-  #Sample&lt;-rep(c(1,2,3),length(summary_cz)/3) # triplicates
-  Sample&lt;-1:length(summary_cz)
-  #Sample&lt;-seq(1,length(unique(cells_observed$DY))-1,1) # hack, somehow model does not output the last sample date..
-  #Sample&lt;-as.data.frame(Sample)
-  #Sample&lt;-as.integer(Sample[rep(1:nrow(Sample),each=3),])
-
-  # construct days of the year
-  DY&lt;-unique(cells_modelled$day)
-  #DY[length(DY)+1]&lt;-360
-  # DY&lt;-head(DY,-1)
-  # DY&lt;-as.data.frame(DY)
-  # DY&lt;-DY[rep(1:nrow(DY),each=3),] # triplicates
-
-  # construct repetition factor
-  #RF&lt;-as.factor(rep(c(1,2,3),length(summary_cz)/3)) # triplicates
-  RF&lt;-rep(as.factor(1),length(summary_cz))
-
-  # construct quality measure
-  # assume a quality value of 0.5 for all modelled values.
-  PR&lt;- rep(0.5,length(summary_cz))
-
-
-  cells_modelled&lt;-data.frame(Site=Site,
-                             Year=Year,
-                             Species=Species_model,
-                             Tree=Tree_model,
-                             Sample=Sample,
-                             DY=DY,
-                             RF=RF,
-                             CZ=collect$summary_cz,
-                             EZ=collect$summary_ez,
-                             WZ=collect$summary_wz,
-                             MZ=collect$summary_mz,
-                             PR= PR)
-
-
-  return(cells_modelled)
-
-}</code></pre>
 <div id="plot-fig-2" class="section level1">
 <h1>Plot Fig 2</h1>
 <pre class="r"><code># Graph layout inspired by Wilkinson et al 2015
