@@ -315,7 +315,7 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 
   # when other density measures are saved in the above format, this plot can easily visualise them.
   index<-c(2007,2008,2009)
-  par(mfrow=c(4,1),mar=c(0,4.5,0,40),omar=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),omar=c(0,2.7,4,0))
   for ( i in 1:3){
 
     subs<-GRA_PISY_DENS.lst[[i]]
@@ -554,7 +554,7 @@ D_MEAN= 26.28087
   TRW_table$VS_model <- as.numeric(D_MEAN*loc_Grandfontaine_650m$cell_numbers/1000) # change units from µm to mm
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,40),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxN<-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN<-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5

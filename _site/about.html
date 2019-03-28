@@ -302,9 +302,16 @@ $(document).ready(function () {
 
 
 <pre class="r"><code>library(CaviaR)
-library(dplyr)
-
-create_Timestamp&lt;-function(start_date,no_years){
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>create_Timestamp&lt;-function(start_date,no_years){
   ## create timestamp for comparison with observations
   start &lt;- as.POSIXct(start_date)
   interval &lt;- 60
@@ -609,8 +616,8 @@ Example year of the model input dynamics and how the outputs ( cell numbers, vol
 
   # when other density measures are saved in the above format, this plot can easily visualise them.
   index&lt;-c(2007,2008,2009)
-  par(mfrow=c(4,1),mar=c(0,4.5,0,40),omar=c(0,2.7,4,0))</code></pre>
-<pre><code>## Warning in par(mfrow = c(4, 1), mar = c(0, 4.5, 0, 40), omar = c(0, 2.7, :
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),omar=c(0,2.7,4,0))</code></pre>
+<pre><code>## Warning in par(mfrow = c(4, 1), mar = c(0, 4.5, 0, 30), omar = c(0, 2.7, :
 ## &quot;omar&quot; is not a graphical parameter</code></pre>
 <pre class="r"><code>  for ( i in 1:3){
 
@@ -869,7 +876,7 @@ D_MEAN= 26.28087
   TRW_table$VS_model &lt;- as.numeric(D_MEAN*loc_Grandfontaine_650m$cell_numbers/1000) # change units from µm to mm
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,40),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxN&lt;-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN&lt;-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
