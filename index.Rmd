@@ -7,7 +7,7 @@ subtitle: "Improving understanding of wood formation: a comparison of two models
 This Website prvides the data for the graphs that were presented in the Poster at the EGU General Assembly 2019 ([https://www.egu2019.eu/),
 session BG2.12 - Constraining present and future global vegetation dynamics and carbon stocks.
 
-By Annemarie H. Eckes-Shephard (1), Cyrille B. K. Rathgeber (2), Patrick Fonti (3), Tim T. Rademacher (4,5,6) , Andrew D. Richardson (4,5), and Andrew D. Friend(1).
+By Annemarie H. Eckes-Shephard (1), Cyrille B. K. Rathgeber (2), Patrick Fonti (3), Tim T. Rademacher (4,5,6) , Andrew D. Richardson (4,5), and Andrew D. Friend (1).
 
 
 The Abstract can be found on https://meetingorganizer.copernicus.org/EGU2019/EGU2019-17876.pdf
@@ -15,7 +15,7 @@ The Abstract can be found on https://meetingorganizer.copernicus.org/EGU2019/EGU
 
 The poster can be viewed again here:
  
-![Presented at EGU 2019, session](Poster_V2)
+![Presented at EGU 2019, session](Poster_V2.png)
 
 
 ## Affiliations
