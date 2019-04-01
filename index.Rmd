@@ -15,8 +15,8 @@ The Abstract can be found on https://meetingorganizer.copernicus.org/EGU2019/EGU
 
 The poster can be viewed again here:
  
-![Presented at EGU 2019, session](Poster_V2.png)
+![Presented at EGU 2019, session](Poster_V2)
 
 
 ## Affiliations
-(1) University of Cambridge, Department of Geography, United Kingdom (ahe24@cam.ac.uk), (3) Swiss Federal Institute for Forest, Snow, and Landscape Research, Birmensdorf, Switzerland, (4) Northern Arizona University, School of Informatics, Computing, and Cyber Systems, Flagstaff, AZ 86011, USA, (5) Northern Arizona University, Center for Ecosystem Science and Society, Flagstaff, AZ,86011, USA, (6) Department for Organismic and Evolutionary Biology, Harvard University, Cambridge,MA, 02 138, USA, (2) Université de Lorraine, AgroParisTech, INRA, Silva, F-54000 Nancy, France
+(1) University of Cambridge, Department of Geography, United Kingdom (ahe24@cam.ac.uk),(2) Université de Lorraine, AgroParisTech, INRA, Silva, F-54000 Nancy, France, (3) Swiss Federal Institute for Forest, Snow, and Landscape Research, Birmensdorf, Switzerland, (4) Northern Arizona University, School of Informatics, Computing, and Cyber Systems, Flagstaff, AZ 86011, USA, (5) Northern Arizona University, Center for Ecosystem Science and Society, Flagstaff, AZ,86011, USA, (6) Department for Organismic and Evolutionary Biology, Harvard University, Cambridge,MA, 02 138, USA, 

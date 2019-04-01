@@ -693,44 +693,59 @@ Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2
 <pre class="r"><code>  load(file=&#39;data/GRA_PISY_TRW_MXD_NR.lst.RData&#39;)
   #unlist(GRA_PSY_TRW_MXD_NR.lst[[1]]) doesn&#39;t work?!
 
-#mean cell size across all years for PISY at GRA
-D_MEAN= 26.28087
 
   TRW_table     &lt;- GRA_PSY_TRW_MXD_NR.lst$TRW_table
   MXD_table     &lt;- GRA_PSY_TRW_MXD_NR.lst$MXD_table
   cell_nr_table &lt;- GRA_PSY_TRW_MXD_NR.lst$cell_nr_table
 
   cell_nr_table$VS_model &lt;- as.numeric(loc_Grandfontaine_650m$cell_numbers)
-  TRW_table$VS_model &lt;- as.numeric(D_MEAN*loc_Grandfontaine_650m$cell_numbers/1000) # change units from µm to mm
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
 
   maxN&lt;-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN&lt;-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
 
-  plot(cell_nr_table$years,cell_nr_table$tot_cells, lwd=2.3,col=&quot;red&quot;,type=&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;, ylab=&quot;&quot;,ylim=c(minN,maxN))
+  plot(cell_nr_table$years,cell_nr_table$tot_cells, lwd=2.3,col=&quot;red&quot;,type=&quot;o&quot;,xlab=&quot;&quot;, ylab=&quot;&quot;,ylim=c(minN,maxN))
   lines(cell_nr_table$years,cell_nr_table$Mean, lwd=2.3,col=&quot;black&quot;, type =&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
   segments(cell_nr_table$years,cell_nr_table$Mean-cell_nr_table$Sd,cell_nr_table$years,cell_nr_table$Mean+cell_nr_table$Sd)
-  lines(cell_nr_table$years,cell_nr_table$VS_model, lwd=2.3,col=&quot;grey&quot;, type =&quot;b&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
+  lines(cell_nr_table$years,cell_nr_table$VS_model, lwd=2.3,col=&quot;medium blue&quot;, type =&quot;b&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
   mtext(side=2, &quot;Number of cells&quot;,cex=1.2,line=3)
-  mtext(side=3,&quot;A&quot;,line=-2.2,adj=0)
+  mtext(side=1, &quot;Years&quot;,line=3,cex=1.4)
+  plot(1, type=&quot;n&quot;, axes=F, xlab=&quot;&quot;, ylab=&quot;&quot;)
+  legend(&quot;center&quot;, legend=c(&quot;DH-model&quot;,&quot;VS-model&quot;,&quot;Observations&quot;), cex=1,col=c(&quot;red&quot;,&quot;medium blue&quot;,&quot;black&quot;),fill=c(&quot;red&quot;,&quot;medium blue&quot;,&quot;black&quot;),horiz=TRUE)</code></pre>
+<div class="figure">
+<img src="about_files/figure-html/fig8%20-1.png" alt="Modelled and observed number of cells from 2007 to 2009 for both models." width="672" />
+<p class="caption">
+Modelled and observed number of cells from 2007 to 2009 for both models.
+</p>
+</div>
+<pre class="r"><code> # plot
+  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
 
+  maxD&lt;-max(MXD_table$Model+MXD_table$obs_stdev,MXD_table$obs+MXD_table$obs_stdev)+100
+  minD&lt;-min(MXD_table$Model-MXD_table$obs_stdev-100)
+  plot(MXD_table$years,MXD_table$Model, col=&quot;red&quot;,lwd=2.3,type=&quot;o&quot;, ylab=&quot;&quot;,ylim=c(minD,maxD),xaxt=&quot;n&quot;)
+  lines(MXD_table$years,MXD_table$obs, col=&quot;black&quot;,lwd=2.3, type =&quot;o&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;, ylab=&quot;&quot;)
+  segments(MXD_table$years,MXD_table$obs-MXD_table$obs_stdev,MXD_table$years,MXD_table$obs+MXD_table$obs_stdev)
+  mtext(side=2, &quot;Maximum density \n (kg/m3)&quot;,cex=1.2,line=3)
+  mtext(side=3,&quot;A&quot;,line=-2.2,adj=0)
+  
   maxRW&lt;-max(TRW_table$TRW_model,TRW_table$TRW_obs)+max(TRW_table$TRW_obs_stdev)+0.2
   minRW&lt;-min(TRW_table$TRW_model,TRW_table$TRW_obs)-max(TRW_table$TRW_obs_stdev)-0.2
   plot(TRW_table$years,TRW_table$TRW_model,type=&quot;o&quot;,lwd=2.3,cex.lab=5, ylab=&quot;&quot;,col=&quot;red&quot;,ylim=c(minRW,maxRW),xlab=&quot;&quot;)
   lines(TRW_table$years,TRW_table$TRW_obs,lwd=2.3,type=&quot;o&quot;,col=&quot;black&quot;)
   segments(TRW_table$years,TRW_table$TRW_obs-TRW_table$TRW_obs_stdev,TRW_table$years,TRW_table$TRW_obs+TRW_table$TRW_obs_stdev)
   lines(TRW_table$years,TRW_table$VS_model, lwd=2.3,col=&quot;grey&quot;, type =&quot;b&quot;,xaxt=&#39;n&#39;,xlab=&quot;&quot;)
-  mtext(side=2, &quot;Ring width (mm)&quot;,cex=1.2,line=3)
+  mtext(side=2, &quot;Ring width \n (mm)&quot;,cex=1.2,line=3)
   mtext(side=3,&quot;B&quot;,line=-2.2,adj=0)
   mtext(side=1, &quot;Years&quot;,line=3,cex=1.4)
   plot(1, type=&quot;n&quot;, axes=F, xlab=&quot;&quot;, ylab=&quot;&quot;)
-  legend(&quot;center&quot;, legend=c(&quot;DH-model&quot;,&quot;VS-model&quot;,&quot;observations&quot;), cex=1,col=c(&quot;red&quot;,&quot;grey&quot;,&quot;black&quot;),fill=c(&quot;red&quot;,&quot;grey&quot;,&quot;black&quot;),horiz=TRUE)</code></pre>
+  legend(&quot;center&quot;, legend=c(&quot;DH-model&quot;,&quot;observations&quot;), cex=1,col=c(&quot;red&quot;,&quot;black&quot;),fill=c(&quot;red&quot;,&quot;black&quot;),horiz=TRUE)</code></pre>
 <div class="figure">
-<img src="about_files/figure-html/fig8%20-1.png" alt="Modelled and observed number of cells and ring width for years 2007 to 2009." width="672" />
+<img src="about_files/figure-html/fig9%20-1.png" alt="Modelled and observed ring width  and maximum density for years 2007 to 2009" width="672" />
 <p class="caption">
-Modelled and observed number of cells and ring width for years 2007 to 2009.
+Modelled and observed ring width and maximum density for years 2007 to 2009
 </p>
 </div>
 <p># Table 2</p>
@@ -859,48 +874,42 @@ Modelled and observed number of cells and ring width for years 2007 to 2009.
 <td>variable</td>
 </tr>
 <tr class="odd">
-<td><span class="math inline">\(D_{mean}\)</span></td>
-<td>µm</td>
-<td>Observed mean cell diameter across study years</td>
-<td>26.28087</td>
-</tr>
-<tr class="even">
 <td><span class="math inline">\(N\)</span></td>
 <td>cells</td>
 <td>Number of cells</td>
 <td>output</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><span class="math inline">\(TRW\)</span></td>
 <td>mm</td>
 <td>Treering width</td>
 <td>output</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>b9</td>
 <td>-</td>
 <td>exponential function of Vmin ( Vaganov et al 2011)</td>
 <td>0.045</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>b8</td>
 <td>-</td>
 <td>exponential function of Vmin ( Vaganov et al 2011)</td>
 <td>0.55</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>b5</td>
 <td>-</td>
 <td>exponential function of Vmin ( Vaganov et al 2011)</td>
 <td>1</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>b7</td>
 <td>-</td>
 <td>linear function (Camb50, parametersin CMB50)</td>
 <td>0.35</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>b6</td>
 <td>-</td>
 <td>linear function (Camb50, parametersin CMB50)</td>

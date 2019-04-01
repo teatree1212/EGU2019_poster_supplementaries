@@ -428,7 +428,7 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 ```{r fig6, fig.cap="relative growth rates (t,w,e) , integrated growth rate G and cell numbers (N) throughout year 2009 at WAL(black), ABR (green) & GRA(blue)"}
  # Graph layout inspired by Evans et al 2006
 
-  load(file='data/VS_model_output_3.RData')
+  load(file='data/VS_model_output.RData')
 
   # retrieve Model output
   loc_Walscheid_360m     <- VS_model_output$loc_Walscheid_360m
