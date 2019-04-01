@@ -184,6 +184,7 @@ adjustFormat<-function(cells_modelled,Year,Site){
 }
 ```
 
+
 #Plot  Fig 2
 
 ```{r Fig2, fig.cap="Example year of the model input dynamics and how the outputs ( cell numbers, volume and mass increase follow these dynamics and generate density." }
@@ -427,7 +428,7 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 ```{r fig6, fig.cap="relative growth rates (t,w,e) , integrated growth rate G and cell numbers (N) throughout year 2009 at WAL(black), ABR (green) & GRA(blue)"}
  # Graph layout inspired by Evans et al 2006
 
-  load(file='data/VS_model_output.RData')
+  load(file='data/VS_model_output_3.RData')
 
   # retrieve Model output
   loc_Walscheid_360m     <- VS_model_output$loc_Walscheid_360m
@@ -539,63 +540,74 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 
 
 
-
 #Fig 8:
 
-```{r fig8 ,fig.cap="Modelled and observed number of cells and ring width for years 2007 to 2009."}
+```{r fig8 ,fig.cap="Modelled and observed number of cells from 2007 to 2009 for both models."}
 
 
   load(file='data/GRA_PISY_TRW_MXD_NR.lst.RData')
   #unlist(GRA_PSY_TRW_MXD_NR.lst[[1]]) doesn't work?!
 
-#mean cell size across all years for PISY at GRA
-D_MEAN= 26.28087
 
   TRW_table     <- GRA_PSY_TRW_MXD_NR.lst$TRW_table
   MXD_table     <- GRA_PSY_TRW_MXD_NR.lst$MXD_table
   cell_nr_table <- GRA_PSY_TRW_MXD_NR.lst$cell_nr_table
 
   cell_nr_table$VS_model <- as.numeric(loc_Grandfontaine_650m$cell_numbers)
-  TRW_table$VS_model <- as.numeric(D_MEAN*loc_Grandfontaine_650m$cell_numbers/1000) # change units from µm to mm
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
 
   maxN<-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN<-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
 
-  plot(cell_nr_table$years,cell_nr_table$tot_cells, lwd=2.3,col="red",type="o",xaxt='n',xlab="", ylab="",ylim=c(minN,maxN))
+  plot(cell_nr_table$years,cell_nr_table$tot_cells, lwd=2.3,col="red",type="o",xlab="", ylab="",ylim=c(minN,maxN))
   lines(cell_nr_table$years,cell_nr_table$Mean, lwd=2.3,col="black", type ="o",xaxt='n',xlab="")
   segments(cell_nr_table$years,cell_nr_table$Mean-cell_nr_table$Sd,cell_nr_table$years,cell_nr_table$Mean+cell_nr_table$Sd)
-  lines(cell_nr_table$years,cell_nr_table$VS_model, lwd=2.3,col="grey", type ="b",xaxt='n',xlab="")
+  lines(cell_nr_table$years,cell_nr_table$VS_model, lwd=2.3,col="medium blue", type ="b",xaxt='n',xlab="")
   mtext(side=2, "Number of cells",cex=1.2,line=3)
-  mtext(side=3,"A",line=-2.2,adj=0)
+  mtext(side=1, "Years",line=3,cex=1.4)
+  plot(1, type="n", axes=F, xlab="", ylab="")
+  legend("center", legend=c("DH-model","VS-model","Observations"), cex=1,col=c("red","medium blue","black"),fill=c("red","medium blue","black"),horiz=TRUE)
 
+
+
+```
+
+```{r fig9 ,fig.cap= "Modelled and observed ring width  and maximum density for years 2007 to 2009"}
+
+ # plot
+  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
+
+  maxD<-max(MXD_table$Model+MXD_table$obs_stdev,MXD_table$obs+MXD_table$obs_stdev)+100
+  minD<-min(MXD_table$Model-MXD_table$obs_stdev-100)
+  plot(MXD_table$years,MXD_table$Model, col="red",lwd=2.3,type="o", ylab="",ylim=c(minD,maxD),xaxt="n")
+  lines(MXD_table$years,MXD_table$obs, col="black",lwd=2.3, type ="o",xaxt='n',xlab="", ylab="")
+  segments(MXD_table$years,MXD_table$obs-MXD_table$obs_stdev,MXD_table$years,MXD_table$obs+MXD_table$obs_stdev)
+  mtext(side=2, "Maximum density \n (kg/m3)",cex=1.2,line=3)
+  mtext(side=3,"A",line=-2.2,adj=0)
+  
   maxRW<-max(TRW_table$TRW_model,TRW_table$TRW_obs)+max(TRW_table$TRW_obs_stdev)+0.2
   minRW<-min(TRW_table$TRW_model,TRW_table$TRW_obs)-max(TRW_table$TRW_obs_stdev)-0.2
   plot(TRW_table$years,TRW_table$TRW_model,type="o",lwd=2.3,cex.lab=5, ylab="",col="red",ylim=c(minRW,maxRW),xlab="")
   lines(TRW_table$years,TRW_table$TRW_obs,lwd=2.3,type="o",col="black")
   segments(TRW_table$years,TRW_table$TRW_obs-TRW_table$TRW_obs_stdev,TRW_table$years,TRW_table$TRW_obs+TRW_table$TRW_obs_stdev)
   lines(TRW_table$years,TRW_table$VS_model, lwd=2.3,col="grey", type ="b",xaxt='n',xlab="")
-  mtext(side=2, "Ring width (mm)",cex=1.2,line=3)
+  mtext(side=2, "Ring width \n (mm)",cex=1.2,line=3)
   mtext(side=3,"B",line=-2.2,adj=0)
   mtext(side=1, "Years",line=3,cex=1.4)
   plot(1, type="n", axes=F, xlab="", ylab="")
-  legend("center", legend=c("DH-model","VS-model","observations"), cex=1,col=c("red","grey","black"),fill=c("red","grey","black"),horiz=TRUE)
+  legend("center", legend=c("DH-model","observations"), cex=1,col=c("red","black"),fill=c("red","black"),horiz=TRUE)
 
 
 
 ```
-
-
-
-
   # Table 2
 
-  Symbol  | Unit | Description | Value
+  Symbol  | Unit | Description | Value 
   --------|------|-------------|-------
-    $T_{air}$         | °C         | Weekly mean air temperature | input
-  $\Delta_{n,i}$    | cells      | Number of cells produced per week (i) | output
+    $T_{air}$         | °C         | Weekly mean air temperature | input  
+  $\Delta_{n,i}$    | cells      | Number of cells produced per week (i) | output 
   $Tmin$            | °C         | Minimum air temperature | `r params_DH[1,1]`
   $\Delta_{n,max}$  | cells/week | Maximum number of cells produced per week | `r params_DH[3,1]`
   $\beta$           | /°C        | Sensitivity of cell division to temperature | `r params_DH[4,1]`
@@ -612,7 +624,6 @@ D_MEAN= 26.28087
   $g\_rate\_t$      | (-)        | relative growth-rate modifier based on temperature | variable
   $g\_rate\_w$      | (-)        | relative growth-rate modifier based on soil moisture | variable
   $G$               | (-)        | relatige integrated growth rate | variable
-  $D_{mean}$        | µm         | Observed mean cell diameter across study years | 26.28087
   $N$               | cells      | Number of cells | output
   $TRW$             | mm         | Treering width  | output
 b9| - | exponential function of Vmin (  Vaganov et al 2011) | `r b9 `
