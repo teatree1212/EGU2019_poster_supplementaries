@@ -3,7 +3,7 @@ title: "Data and Code"
 ---
 
 
-Below the Code and its resulting figures used in the Poster can be found.
+Below are the R code and its resulting figures used in the poster.
 The data is availale from https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data
 
 
@@ -357,8 +357,6 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 
 
 
-
-
 #Fig 4
 
 ```{r Fig4, fig.cap="Modelled and observed maximum density values for years 2007 to 2009.",eval=FALSE}
@@ -556,7 +554,7 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
   cell_nr_table$VS_model <- as.numeric(loc_Grandfontaine_650m$cell_numbers)
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxN<-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN<-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
@@ -577,7 +575,7 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
 ```{r fig9 ,fig.cap= "Modelled and observed ring width  and maximum density for years 2007 to 2009"}
 
  # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxD<-max(MXD_table$Model+MXD_table$obs_stdev,MXD_table$obs+MXD_table$obs_stdev)+100
   minD<-min(MXD_table$Model-MXD_table$obs_stdev-100)
@@ -599,9 +597,9 @@ Dens.df<-data.frame(Dens=Dens,dates=ds)
   plot(1, type="n", axes=F, xlab="", ylab="")
   legend("center", legend=c("DH-model","observations"), cex=1,col=c("red","black"),fill=c("red","black"),horiz=TRUE)
 
-
-
 ```
+
+
   # Table 2
 
   Symbol  | Unit | Description | Value 

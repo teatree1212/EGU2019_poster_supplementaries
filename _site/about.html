@@ -301,7 +301,7 @@ $(document).ready(function () {
 </div>
 
 
-<p>Below the Code and its resulting figures used in the Poster can be found. The data is availale from <a href="https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data" class="uri">https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data</a></p>
+<p>Below are the R code and its resulting figures used in the poster. The data is availale from <a href="https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data" class="uri">https://github.com/teatree1212/EGU2019_poster_supplementaries/tree/master/data</a></p>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>## The following objects are masked from &#39;package:stats&#39;:
@@ -701,7 +701,7 @@ Wood formation phenology observations for Pinus sylvestris at Grandfontaine in 2
   cell_nr_table$VS_model &lt;- as.numeric(loc_Grandfontaine_650m$cell_numbers)
 
   # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxN&lt;-max(cell_nr_table$tot_cells_model,cell_nr_table$Mean)+max(cell_nr_table$Sd)+5
   minN&lt;-min(cell_nr_table$tot_cells_model,cell_nr_table$Mean)-max(cell_nr_table$Sd)-5
@@ -721,7 +721,7 @@ Modelled and observed number of cells from 2007 to 2009 for both models.
 </p>
 </div>
 <pre class="r"><code> # plot
-  par(mfrow=c(4,1),mar=c(0,4.5,0,45),oma=c(0,2.7,4,0))
+  par(mfrow=c(4,1),mar=c(0,4.5,0,30),oma=c(0,2.7,4,0))
 
   maxD&lt;-max(MXD_table$Model+MXD_table$obs_stdev,MXD_table$obs+MXD_table$obs_stdev)+100
   minD&lt;-min(MXD_table$Model-MXD_table$obs_stdev-100)
