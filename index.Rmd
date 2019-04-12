@@ -13,9 +13,17 @@ By Annemarie H. Eckes-Shephard (1), Cyrille B. K. Rathgeber (2), Patrick Fonti (
 The Abstract can be found on https://meetingorganizer.copernicus.org/EGU2019/EGU2019-17876.pdf
 
 
-The poster can be viewed again here:
+The poster can be viewed again here: 
+https://github.com/teatree1212/EGU2019_poster_supplementaries/blob/master/data/EGU_poster_V5.pdf
+
+
+ ```{r out.width = "4400px",echo=FALSE}
+
+knitr::include_graphics('Poster_final.jpg')
+
  
-![Presented at EGU 2019, session](Poster_final.jpg)
+```
+
 
 
 ## Affiliations
